@@ -1,6 +1,4 @@
-import { ConnectorError, StdTestConnectionOutput } from '@sailpoint/connector-sdk'
-import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
-import { Group } from './model/group'
+import axios, { AxiosRequestConfig, AxiosResponse } from 'axios'
 
 export class IDNClient {
     private readonly idnUrl: string
@@ -10,13 +8,14 @@ export class IDNClient {
     readonly application: string | null
     private accessToken?: string
     private expiryDate: Date
+    private readonly LIMIT = 250
 
     constructor(config: any) {
         this.idnUrl = config.idnUrl
         this.patId = config.patId
         this.patSecret = config.patSecret
         this.expiryDate = new Date()
-        this.includedSources = config.includedSources.split(',').map((x: string) => x.trim())
+        this.includedSources = config.includedSources || []
         this.application = config.application
     }
 
@@ -47,11 +46,12 @@ export class IDNClient {
 
     async testConnection(): Promise<AxiosResponse> {
         const accessToken = await this.getAccessToken()
+        const url = '/beta/public-identities-config'
 
-        let request: AxiosRequestConfig = {
+        const request: AxiosRequestConfig = {
             method: 'get',
             baseURL: this.idnUrl,
-            url: '/beta/public-identities-config',
+            url,
             headers: {
                 Authorization: `Bearer ${accessToken}`,
             },
@@ -60,23 +60,22 @@ export class IDNClient {
         return axios(request)
     }
 
-    async getIncludedSourcesQuery(): Promise<string> {
+    private async getIncludedSourcesQuery(): Promise<string> {
         const accessToken = await this.getAccessToken()
-        const LIMIT = 250
+        const url = '/v3/sources'
         const query = this.includedSources.map((x) => `name eq "${x}"`).join(' or ')
 
-        let request: AxiosRequestConfig = {
+        const request: AxiosRequestConfig = {
             method: 'get',
             baseURL: this.idnUrl,
-            url: '/v3/sources',
+            url,
             headers: {
                 Authorization: `Bearer ${accessToken}`,
                 Accept: 'application/json',
             },
             params: {
                 filters: query,
-                count: true,
-                limit: LIMIT,
+                limit: this.LIMIT,
                 offset: 0,
             },
         }
@@ -88,13 +87,13 @@ export class IDNClient {
 
     async collectOrphanAccounts(): Promise<AxiosResponse> {
         const accessToken = await this.getAccessToken()
-        const LIMIT = 250
+        const url = '/beta/accounts'
         const sourcesQuery = await this.getIncludedSourcesQuery()
 
-        let request: AxiosRequestConfig = {
+        const request: AxiosRequestConfig = {
             method: 'get',
             baseURL: this.idnUrl,
-            url: '/beta/accounts',
+            url,
             headers: {
                 Authorization: `Bearer ${accessToken}`,
                 'Content-Type': 'application/json',
@@ -103,7 +102,7 @@ export class IDNClient {
             params: {
                 filters: `uncorrelated eq true and (${sourcesQuery})`,
                 count: true,
-                limit: LIMIT,
+                limit: this.LIMIT,
                 offset: 0,
             },
         }
@@ -114,8 +113,8 @@ export class IDNClient {
         let response = await axios(request)
 
         while (!finished) {
-            if (LIMIT + request.params.offset < parseInt(response.headers['x-total-count'])) {
-                request.params.offset += LIMIT
+            if (this.LIMIT + request.params.offset < parseInt(response.headers['x-total-count'])) {
+                request.params.offset += this.LIMIT
                 response = await axios(request)
                 data = [...data, ...response.data]
                 response.data = data
@@ -129,11 +128,12 @@ export class IDNClient {
 
     async getAccount(id: string): Promise<AxiosResponse> {
         const accessToken = await this.getAccessToken()
+        const url = `/beta/accounts/${id}`
 
-        let request: AxiosRequestConfig = {
+        const request: AxiosRequestConfig = {
             method: 'get',
             baseURL: this.idnUrl,
-            url: `/beta/accounts/${id}`,
+            url,
             headers: {
                 Authorization: `Bearer ${accessToken}`,
                 'Content-Type': 'application/json',
@@ -146,11 +146,12 @@ export class IDNClient {
 
     async correlateAccount(id: string, account: string): Promise<AxiosResponse> {
         const accessToken = await this.getAccessToken()
+        const url = `/beta/accounts/${account}`
 
-        let request: AxiosRequestConfig = {
+        const request: AxiosRequestConfig = {
             method: 'patch',
             baseURL: this.idnUrl,
-            url: `/beta/accounts/${account}`,
+            url,
             headers: {
                 Authorization: `Bearer ${accessToken}`,
                 'Content-Type': 'application/json-patch+json',
@@ -170,11 +171,12 @@ export class IDNClient {
 
     async enableAccount(id: string): Promise<AxiosResponse> {
         const accessToken = await this.getAccessToken()
+        const url = `/beta/accounts/${id}/enable`
 
-        let request: AxiosRequestConfig = {
+        const request: AxiosRequestConfig = {
             method: 'post',
             baseURL: this.idnUrl,
-            url: `/beta/accounts/${id}/enable`,
+            url,
             headers: {
                 Authorization: `Bearer ${accessToken}`,
                 'Content-Type': 'application/json',
@@ -190,11 +192,12 @@ export class IDNClient {
 
     async disableAccount(id: string): Promise<AxiosResponse> {
         const accessToken = await this.getAccessToken()
+        const url = `/beta/accounts/${id}/disable`
 
-        let request: AxiosRequestConfig = {
+        const request: AxiosRequestConfig = {
             method: 'post',
             baseURL: this.idnUrl,
-            url: `/beta/accounts/${id}/disable`,
+            url,
             headers: {
                 Authorization: `Bearer ${accessToken}`,
                 'Content-Type': 'application/json',
@@ -210,11 +213,12 @@ export class IDNClient {
 
     async getIdentity(name: string): Promise<AxiosResponse> {
         const accessToken = await this.getAccessToken()
+        const url = '/v3/search'
 
-        let request: AxiosRequestConfig = {
+        const request: AxiosRequestConfig = {
             method: 'post',
             baseURL: this.idnUrl,
-            url: '/v3/search',
+            url,
             headers: {
                 Authorization: `Bearer ${accessToken}`,
                 'Content-Type': 'application/json',

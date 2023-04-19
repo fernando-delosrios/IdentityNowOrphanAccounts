@@ -1,4 +1,4 @@
-import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
+import { AxiosResponse } from 'axios'
 import {
     Context,
     ConnectorError,
@@ -18,8 +18,6 @@ import {
     StdEntitlementReadInput,
     StdTestConnectionOutput,
     AttributeChangeOp,
-    Key,
-    SimpleKey,
 } from '@sailpoint/connector-sdk'
 import { IDNClient } from './idn-client'
 import { Account } from './model/account'
@@ -33,6 +31,16 @@ export const connector = async () => {
     // Use the vendor SDK, or implement own client as necessary, to initialize a client
     const client = new IDNClient(config)
 
+    const buildSimpleAccount = (id: string, name: string): Account => {
+        const account: Account = {
+            identity: id,
+            uuid: name,
+            attributes: { id, name },
+        }
+
+        return account
+    }
+
     return createConnector()
         .stdTestConnection(async (context: Context, input: undefined, res: Response<StdTestConnectionOutput>) => {
             const response: AxiosResponse = await client.testConnection()
@@ -43,50 +51,34 @@ export const connector = async () => {
             }
         })
         .stdAccountList(async (context: Context, input: undefined, res: Response<StdAccountListOutput>) => {
-            const response: AxiosResponse = await client.collectOrphanAccounts()
-            for (const acc of response.data) {
-                let account: Account = new Account(acc)
-                console.log(account)
-                res.send(account)
+            if (config.enableOrphanIdentities) {
+                const response: AxiosResponse = await client.collectOrphanAccounts()
+                for (const acc of response.data) {
+                    const account: Account = new Account(acc)
+
+                    logger.info(account)
+                    res.send(account)
+                }
+            } else {
+                logger.info('Orphan identities disabled, skipping account aggregation...')
             }
         })
         .stdAccountCreate(
             async (context: Context, input: StdAccountCreateInput, res: Response<StdAccountCreateOutput>) => {
-                logger.info(JSON.stringify(input))
+                logger.info(input)
                 const response = await client.getIdentity(input.attributes.name)
                 const id = response.data.pop().id
                 await client.correlateAccount(id, input.attributes.id)
-                const account: Account = {
-                    identity: input.attributes.id,
-                    uuid: input.attributes.name,
-                    attributes: { name: input.attributes.name, id: input.attributes.id },
-                }
+                const account = buildSimpleAccount(input.attributes.id, input.attributes.name)
 
+                logger.info(account)
                 res.send(account)
             }
         )
         .stdAccountRead(async (context: Context, input: StdAccountReadInput, res: Response<StdAccountReadOutput>) => {
-            logger.info(JSON.stringify(input))
+            logger.info(input)
             const response = await client.getAccount(input.identity)
-            let account: Account = new Account(response.data)
-
-            res.send(account)
-        })
-        .command('std:account:disable', async (context: Context, input: any, res: Response<any>) => {
-            logger.info('std:account:disable')
-            logger.info(JSON.stringify(input))
-            await client.disableAccount(input.identity)
-            const response = await client.getAccount(input.identity)
-            let account = new Account(response.data)
-
-            res.send(account)
-        })
-        .command('std:account:enable', async (context: Context, input: any, res: Response<any>) => {
-            logger.info('std:account:enable')
-            logger.info(JSON.stringify(input))
-            await client.enableAccount(input.identity)
-            const response = await client.getAccount(input.identity)
-            let account = new Account(response.data)
+            const account: Account = new Account(response.data)
 
             res.send(account)
         })
@@ -94,23 +86,45 @@ export const connector = async () => {
             const response = await client.collectOrphanAccounts()
             const accessProfiles: string[] = []
             for (const gr of response.data) {
-                let group: Group = new Group(gr)
+                const group: Group = new Group(gr)
+
+                logger.info(group)
                 res.send(group)
             }
         })
         .stdEntitlementRead(
             async (context: Context, input: StdEntitlementReadInput, res: Response<StdEntitlementReadOutput>) => {
-                logger.info(JSON.stringify(input))
+                logger.info(input)
                 const response: AxiosResponse = await client.getAccount(input.identity)
-                let group: Group = new Group(response.data)
+                const group: Group = new Group(response.data)
+
+                logger.info(group)
                 res.send(group)
             }
         )
+        .stdAccountDisable(async (context: Context, input: any, res: Response<any>) => {
+            logger.info(input)
+            await client.disableAccount(input.identity)
+            const response = await client.getAccount(input.identity)
+            const account = new Account(response.data)
+
+            logger.info(account)
+            res.send(account)
+        })
+        .stdAccountEnable(async (context: Context, input: any, res: Response<any>) => {
+            logger.info(input)
+            await client.enableAccount(input.identity)
+            const response = await client.getAccount(input.identity)
+            const account = new Account(response.data)
+
+            logger.info(account)
+            res.send(account)
+        })
         .stdAccountUpdate(
             async (context: Context, input: StdAccountUpdateInput, res: Response<StdAccountUpdateOutput>) => {
-                logger.info(JSON.stringify(input))
-                let response = await client.getAccount(input.identity)
-                let account: Account = new Account(response.data)
+                logger.info(input)
+                const response1 = await client.getAccount(input.identity)
+                let account: Account = new Account(response1.data)
                 for (let change of input.changes) {
                     const values = [].concat(change.value)
                     for (let value of values) {
@@ -126,8 +140,10 @@ export const connector = async () => {
                         }
                     }
                 }
-                response = await client.getAccount(input.identity)
-                account = new Account(response.data)
+                const response2 = await client.getAccount(input.identity)
+                account = new Account(response2.data)
+
+                logger.info(account)
                 res.send(account)
             }
         )

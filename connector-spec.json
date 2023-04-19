@@ -1,5 +1,5 @@
 {
-    "name": "IdentityNow Orphan Accounts 1.5",
+    "name": "Orphan Accounts",
     "commands": [
         "std:account:create",
         "std:account:enable",
@@ -14,6 +14,8 @@
     "sourceConfig": [
         {
             "type": "section",
+            "sectionTitle": "IdentityNow connection details",
+            "sectionHelpMessage": "Add your connection details here",
             "items": [
                 {
                     "key": "idnUrl",
@@ -32,11 +34,24 @@
                     "label": "Personal Access Token secret",
                     "type": "secret",
                     "required": true
-                },
+                }
+            ]
+        },
+        {
+            "type": "section",
+            "sectionTitle": "Configuration details",
+            "sectionHelpMessage": "Add your configuration details here",
+            "items": [
                 {
                     "key": "includedSources",
-                    "label": "Comma-separated list of sources to include",
-                    "type": "text",
+                    "label": "List of sources to include",
+                    "type": "list",
+                    "required": true
+                },
+                {
+                    "key": "enableOrphanIdentities",
+                    "label": "Enable orphan identities?",
+                    "type": "checkbox",
                     "required": true
                 }
             ]

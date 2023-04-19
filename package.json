@@ -1,20 +1,22 @@
 {
     "name": "IdentityNowOrphanAccounts",
-    "version": "1.5",
+    "version": "0.3",
     "main": "dist/index.js",
     "scripts": {
         "clean": "shx rm -rf ./dist",
         "prebuild": "npm run clean",
         "build": "npx ncc build ./src/index.ts -o ./dist -m -C",
-        "dev": "spcx dist/index.js",
+        "dev": "spcx run dist/index.js",
+        "dev-orig": "spcx run dist/index.js",
         "prettier": "npx prettier --write .",
         "test": "jest --coverage",
         "prepack-zip": "npm ci && npm run build",
-        "pack-zip": "(cp connector-spec.json ./dist/ && cd ./dist && bestzip $npm_package_name-$npm_package_version.zip ./index.js ./connector-spec.json)"
+        "pack-zip": "spcx package"
     },
     "private": true,
     "dependencies": {
-        "@sailpoint/connector-sdk": "github:sailpoint-oss/sp-connector-sdk-js#main"
+        "@sailpoint/connector-sdk": "^1.0.0",
+        "axios": "^1.3.4"
     },
     "devDependencies": {
         "@types/jest": "^27.0.1",
