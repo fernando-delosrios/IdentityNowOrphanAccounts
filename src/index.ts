@@ -31,6 +31,12 @@ export const connector = async () => {
     // Use the vendor SDK, or implement own client as necessary, to initialize a client
     const client = new IDNClient(config)
 
+    const SLEEP = 5 * 1000
+
+    function sleep(ms: number) {
+        return new Promise((resolve) => setTimeout(resolve, ms))
+    }
+
     const buildSimpleAccount = (id: string, name: string): Account => {
         const account: Account = {
             identity: id,
@@ -39,6 +45,15 @@ export const connector = async () => {
         }
 
         return account
+    }
+
+    const makeGroupsRequestable = async (groups: Group[]): Promise<void> => {
+        await sleep(SLEEP)
+        const filters = 'value in (' + groups.map(({ identity }) => `"${identity}"`).join(',') + ')'
+        const response1 = await client.getEntitlements(filters)
+        for (const { id } of response1.data) {
+            const response2 = await client.makeEntitlementRequestable(id)
+        }
     }
 
     return createConnector()
@@ -63,18 +78,6 @@ export const connector = async () => {
                 logger.info('Orphan identities disabled, skipping account aggregation...')
             }
         })
-        .stdAccountCreate(
-            async (context: Context, input: StdAccountCreateInput, res: Response<StdAccountCreateOutput>) => {
-                logger.info(input)
-                const response = await client.getIdentity(input.attributes.name)
-                const id = response.data.pop().id
-                await client.correlateAccount(id, input.attributes.id)
-                const account = buildSimpleAccount(input.attributes.id, input.attributes.name)
-
-                logger.info(account)
-                res.send(account)
-            }
-        )
         .stdAccountRead(async (context: Context, input: StdAccountReadInput, res: Response<StdAccountReadOutput>) => {
             logger.info(input)
             const response = await client.getAccount(input.identity)
@@ -82,44 +85,18 @@ export const connector = async () => {
 
             res.send(account)
         })
-        .stdEntitlementList(async (context: Context, input: any, res: Response<StdEntitlementListOutput>) => {
-            const response = await client.collectOrphanAccounts()
-            const accessProfiles: string[] = []
-            for (const gr of response.data) {
-                const group: Group = new Group(gr)
-
-                logger.info(group)
-                res.send(group)
-            }
-        })
-        .stdEntitlementRead(
-            async (context: Context, input: StdEntitlementReadInput, res: Response<StdEntitlementReadOutput>) => {
+        .stdAccountCreate(
+            async (context: Context, input: StdAccountCreateInput, res: Response<StdAccountCreateOutput>) => {
                 logger.info(input)
-                const response: AxiosResponse = await client.getAccount(input.identity)
-                const group: Group = new Group(response.data)
+                const response = await client.getIdentity(input.attributes.name)
+                const id = response.data[0].id
+                await client.correlateAccount(id, input.attributes.id)
+                const account = buildSimpleAccount(input.attributes.id, input.attributes.name)
 
-                logger.info(group)
-                res.send(group)
+                logger.info(account)
+                res.send(account)
             }
         )
-        .stdAccountDisable(async (context: Context, input: any, res: Response<any>) => {
-            logger.info(input)
-            await client.disableAccount(input.identity)
-            const response = await client.getAccount(input.identity)
-            const account = new Account(response.data)
-
-            logger.info(account)
-            res.send(account)
-        })
-        .stdAccountEnable(async (context: Context, input: any, res: Response<any>) => {
-            logger.info(input)
-            await client.enableAccount(input.identity)
-            const response = await client.getAccount(input.identity)
-            const account = new Account(response.data)
-
-            logger.info(account)
-            res.send(account)
-        })
         .stdAccountUpdate(
             async (context: Context, input: StdAccountUpdateInput, res: Response<StdAccountUpdateOutput>) => {
                 logger.info(input)
@@ -145,6 +122,49 @@ export const connector = async () => {
 
                 logger.info(account)
                 res.send(account)
+            }
+        )
+        .stdAccountDisable(async (context: Context, input: any, res: Response<any>) => {
+            logger.info(input)
+            await client.disableAccount(input.identity)
+            const response = await client.getAccount(input.identity)
+            const account = new Account(response.data)
+
+            logger.info(account)
+            res.send(account)
+        })
+        .stdAccountEnable(async (context: Context, input: any, res: Response<any>) => {
+            logger.info(input)
+            await client.enableAccount(input.identity)
+            const response = await client.getAccount(input.identity)
+            const account = new Account(response.data)
+
+            logger.info(account)
+            res.send(account)
+        })
+        .stdEntitlementList(async (context: Context, input: any, res: Response<StdEntitlementListOutput>) => {
+            const response = await client.collectOrphanAccounts()
+            const accessProfiles: string[] = []
+            const groups: Group[] = []
+            for (const gr of response.data) {
+                const group: Group = new Group(gr)
+                groups.push(group)
+
+                logger.info(group)
+                res.send(group)
+            }
+            if (config.makeEntitlementsRequestable) {
+                makeGroupsRequestable(groups)
+            }
+        })
+        .stdEntitlementRead(
+            async (context: Context, input: StdEntitlementReadInput, res: Response<StdEntitlementReadOutput>) => {
+                logger.info(input)
+                const response: AxiosResponse = await client.getAccount(input.identity)
+                const group: Group = new Group(response.data)
+
+                logger.info(group)
+                res.send(group)
             }
         )
 }

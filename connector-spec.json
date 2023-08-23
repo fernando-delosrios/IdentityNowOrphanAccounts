@@ -13,46 +13,58 @@
     ],
     "sourceConfig": [
         {
-            "type": "section",
-            "sectionTitle": "IdentityNow connection details",
-            "sectionHelpMessage": "Add your connection details here",
+            "type": "menu",
+            "label": "Configuration",
             "items": [
                 {
-                    "key": "idnUrl",
-                    "label": "IdentityNow API URL",
-                    "type": "text",
-                    "required": true
+                    "type": "section",
+                    "sectionTitle": "IdentityNow connection details",
+                    "sectionHelpMessage": "Add your connection details here",
+                    "items": [
+                        {
+                            "key": "idnUrl",
+                            "label": "IdentityNow API URL",
+                            "type": "text",
+                            "required": true
+                        },
+                        {
+                            "key": "patId",
+                            "label": "Personal Access Token ID",
+                            "type": "text",
+                            "required": true
+                        },
+                        {
+                            "key": "patSecret",
+                            "label": "Personal Access Token secret",
+                            "type": "secret",
+                            "required": true
+                        }
+                    ]
                 },
                 {
-                    "key": "patId",
-                    "label": "Personal Access Token ID",
-                    "type": "text",
-                    "required": true
-                },
-                {
-                    "key": "patSecret",
-                    "label": "Personal Access Token secret",
-                    "type": "secret",
-                    "required": true
-                }
-            ]
-        },
-        {
-            "type": "section",
-            "sectionTitle": "Configuration details",
-            "sectionHelpMessage": "Add your configuration details here",
-            "items": [
-                {
-                    "key": "includedSources",
-                    "label": "List of sources to include",
-                    "type": "list",
-                    "required": true
-                },
-                {
-                    "key": "enableOrphanIdentities",
-                    "label": "Enable orphan identities?",
-                    "type": "checkbox",
-                    "required": true
+                    "type": "section",
+                    "sectionTitle": "Configuration details",
+                    "sectionHelpMessage": "Add your configuration details here",
+                    "items": [
+                        {
+                            "key": "includedSources",
+                            "label": "List of sources to include",
+                            "type": "list",
+                            "required": true
+                        },
+                        {
+                            "key": "enableOrphanIdentities",
+                            "label": "Enable orphan identities?",
+                            "type": "checkbox",
+                            "required": true
+                        },
+                        {
+                            "key": "makeEntitlementsRequestable",
+                            "label": "Make entitlements requestable?",
+                            "type": "checkbox",
+                            "required": true
+                        }
+                    ]
                 }
             ]
         }

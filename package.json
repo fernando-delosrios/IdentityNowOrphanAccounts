@@ -1,6 +1,6 @@
 {
     "name": "IdentityNowOrphanAccounts",
-    "version": "0.3",
+    "version": "0.4",
     "main": "dist/index.js",
     "scripts": {
         "clean": "shx rm -rf ./dist",

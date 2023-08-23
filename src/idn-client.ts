@@ -126,6 +126,72 @@ export class IDNClient {
         return response
     }
 
+    async getEntitlements(filters: string): Promise<AxiosResponse> {
+        const accessToken = await this.getAccessToken()
+        const url = '/beta/entitlements'
+        const sourcesQuery = await this.getIncludedSourcesQuery()
+
+        const request: AxiosRequestConfig = {
+            method: 'get',
+            baseURL: this.idnUrl,
+            url,
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+                'Content-Type': 'application/json',
+                Accept: 'application/json',
+            },
+            params: {
+                filters,
+                count: true,
+                limit: this.LIMIT,
+                offset: 0,
+            },
+        }
+
+        let data: any[] = []
+        let finished = false
+
+        let response = await axios(request)
+
+        while (!finished) {
+            if (this.LIMIT + request.params.offset < parseInt(response.headers['x-total-count'])) {
+                request.params.offset += this.LIMIT
+                response = await axios(request)
+                data = [...data, ...response.data]
+                response.data = data
+            } else {
+                finished = true
+            }
+        }
+
+        return response
+    }
+
+    async makeEntitlementRequestable(id: string): Promise<AxiosResponse> {
+        const accessToken = await this.getAccessToken()
+        const url: string = `/beta/entitlements/${id}`
+
+        let request: AxiosRequestConfig = {
+            method: 'patch',
+            baseURL: this.idnUrl,
+            url,
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+                'Content-Type': 'application/json-patch+json',
+                Accept: 'application/json',
+            },
+            data: [
+                {
+                    op: 'replace',
+                    path: '/requestable',
+                    value: true,
+                },
+            ],
+        }
+
+        return await axios(request)
+    }
+
     async getAccount(id: string): Promise<AxiosResponse> {
         const accessToken = await this.getAccessToken()
         const url = `/beta/accounts/${id}`
@@ -138,6 +204,37 @@ export class IDNClient {
                 Authorization: `Bearer ${accessToken}`,
                 'Content-Type': 'application/json',
                 Accept: 'application/json',
+            },
+        }
+
+        return await axios(request)
+    }
+
+    async getIdentity(name: string): Promise<AxiosResponse> {
+        const accessToken = await this.getAccessToken()
+        const url = '/v3/search'
+
+        const request: AxiosRequestConfig = {
+            method: 'post',
+            baseURL: this.idnUrl,
+            url,
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+                'Content-Type': 'application/json',
+                Accept: 'application/json',
+            },
+            params: {
+                limit: 1,
+            },
+            data: {
+                query: {
+                    query: `name.exact:"${name}"`,
+                },
+                indices: ['identities'],
+                includeNested: false,
+                queryResultFilter: {
+                    includes: ['id'],
+                },
             },
         }
 
@@ -205,37 +302,6 @@ export class IDNClient {
             },
             data: {
                 forceProvisioning: true,
-            },
-        }
-
-        return await axios(request)
-    }
-
-    async getIdentity(name: string): Promise<AxiosResponse> {
-        const accessToken = await this.getAccessToken()
-        const url = '/v3/search'
-
-        const request: AxiosRequestConfig = {
-            method: 'post',
-            baseURL: this.idnUrl,
-            url,
-            headers: {
-                Authorization: `Bearer ${accessToken}`,
-                'Content-Type': 'application/json',
-                Accept: 'application/json',
-            },
-            params: {
-                limit: 1,
-            },
-            data: {
-                query: {
-                    query: `name.exact:"${name}"`,
-                },
-                indices: ['identities'],
-                includeNested: false,
-                queryResultFilter: {
-                    includes: ['id'],
-                },
             },
         }
 
