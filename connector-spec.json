@@ -1,5 +1,5 @@
 {
-    "name": "IdentityNow Orphan Accounts 1.5",
+    "name": "Orphan Accounts",
     "commands": [
         "std:account:create",
         "std:account:enable",
@@ -13,31 +13,39 @@
     ],
     "sourceConfig": [
         {
-            "type": "section",
+            "type": "menu",
+            "label": "Configuration",
             "items": [
                 {
-                    "key": "idnUrl",
-                    "label": "IdentityNow API URL",
-                    "type": "text",
-                    "required": true
-                },
-                {
-                    "key": "patId",
-                    "label": "Personal Access Token ID",
-                    "type": "text",
-                    "required": true
-                },
-                {
-                    "key": "patSecret",
-                    "label": "Personal Access Token secret",
-                    "type": "secret",
-                    "required": true
-                },
-                {
-                    "key": "includedSources",
-                    "label": "Comma-separated list of sources to include",
-                    "type": "text",
-                    "required": true
+                    "type": "section",
+                    "sectionTitle": "Identity Security Cloud connection configuration",
+                    "sectionHelpMessage": "Configuration details for Identity Security Cloud Tenant",
+                    "items": [
+                        {
+                            "key": "baseurl",
+                            "label": "Identity Security Cloud API URL",
+                            "type": "url",
+                            "required": true
+                        },
+                        {
+                            "key": "clientId",
+                            "label": "Personal Access Token ID",
+                            "type": "text",
+                            "required": true
+                        },
+                        {
+                            "key": "clientSecret",
+                            "label": "Personal Access Token secret",
+                            "type": "secret",
+                            "required": true
+                        },
+                        {
+                            "key": "sources",
+                            "label": "List of sources to include",
+                            "type": "list",
+                            "required": true
+                        }
+                    ]
                 }
             ]
         }

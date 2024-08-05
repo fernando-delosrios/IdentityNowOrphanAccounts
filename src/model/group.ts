@@ -1,4 +1,5 @@
 import { Attributes, StdEntitlementReadOutput } from '@sailpoint/connector-sdk'
+import { Account } from 'sailpoint-api-client'
 
 const TAG = 'Orphan account'
 
@@ -8,16 +9,16 @@ export class Group {
     type: string = 'group'
     attributes: Attributes
 
-    constructor(object: any) {
+    constructor(account:Account) {
         this.attributes = {
             tag: TAG,
-            name: object.name === null ? '-' : object.name,
-            displayName: `${TAG}: ${object.name === null ? '-' : object.name}`,
-            id: object.id,
-            description: `Source: ${object.sourceName}`,
-            enabled: !object.disabled,
-            locked: object.locked,
-            source: object.sourceName,
+            name: account.name === null ? '-' : account.name,
+            displayName: `${TAG}: ${account.name === null ? '-' : account.name}`,
+            id: account.id!,
+            description: `Source: ${account.sourceName}`,
+            enabled: !account.disabled,
+            locked: account.locked,
+            source: account.sourceName,
         }
         this.identity = this.attributes.id as string
         this.uuid = this.attributes.displayName as string
