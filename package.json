@@ -1,5 +1,5 @@
 {
-    "name": "orphanaccounts",
+    "name": "orphan-accounts",
     "version": "0.3",
     "main": "dist/index.js",
     "scripts": {
