@@ -1,6 +1,6 @@
 {
     "name": "orphan-accounts",
-    "version": "0.3",
+    "version": "0.3.1",
     "main": "dist/index.js",
     "scripts": {
         "clean": "shx rm -rf ./dist",
