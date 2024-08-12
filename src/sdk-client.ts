@@ -84,9 +84,9 @@ export class SDKClient {
         return response.data as IdentityDocument[]
     }
 
-    async listAccountsBySource(id: string): Promise<Account[]> {
+    async listOrphanAccountsBySource(id: string): Promise<Account[]> {
         const api = new AccountsApi(this.config)
-        const filters = `sourceId eq "${id}"`
+        const filters = `sourceId eq "${id}" && uncorrelated eq true`
         const search = async (requestParameters?: AccountsApiListAccountsRequest | undefined) => {
             return await api.listAccounts({ ...requestParameters, filters })
         }
