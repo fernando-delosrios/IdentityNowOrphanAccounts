@@ -86,7 +86,7 @@ export class SDKClient {
 
     async listOrphanAccountsBySource(id: string): Promise<Account[]> {
         const api = new AccountsApi(this.config)
-        const filters = `sourceId eq "${id}" && uncorrelated eq true`
+        const filters = `sourceId eq "${id}" and uncorrelated eq true`
         const search = async (requestParameters?: AccountsApiListAccountsRequest | undefined) => {
             return await api.listAccounts({ ...requestParameters, filters })
         }
@@ -156,14 +156,14 @@ export class SDKClient {
 
     async correlateAccount(identityId: string, id: string): Promise<object> {
         const api = new AccountsApi(this.config)
-        const jsonPatchOperation: JsonPatchOperation[] = [
+        const requestBody: Array<object> = [
             {
                 op: 'replace',
                 path: '/identityId',
                 value: identityId,
             },
         ]
-        const response = await api.updateAccount({ id, jsonPatchOperation })
+        const response = await api.updateAccount({ id, requestBody })
 
         return response.data
     }
