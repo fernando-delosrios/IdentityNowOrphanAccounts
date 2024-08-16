@@ -12,6 +12,7 @@ import {
 } from 'sailpoint-api-client/dist/v3'
 import { URL } from 'url'
 import { logger } from '@sailpoint/connector-sdk'
+import { AxiosError } from 'axios'
 
 const TOKEN_URL_PATH = '/oauth/token'
 
@@ -24,11 +25,12 @@ export class SDKClient {
         this.config.retriesConfig = {
             retries: 5,
             // retryDelay: (retryCount) => { return retryCount * 2000; },
-            retryDelay: (retryCount, error) => axiosRetry.exponentialDelay(retryCount, error, 2000),
+            retryDelay: (retryCount, error) =>
+                axiosRetry.exponentialDelay(retryCount, error as AxiosError<unknown, any>, 2000),
             retryCondition: (error) => {
                 return (
-                    axiosRetry.isNetworkError(error) ||
-                    axiosRetry.isRetryableError(error) ||
+                    axiosRetry.isNetworkError(error as AxiosError<unknown, any>) ||
+                    axiosRetry.isRetryableError(error as AxiosError<unknown, any>) ||
                     error.response?.status === 429
                 )
             },
