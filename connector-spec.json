@@ -44,6 +44,11 @@
                             "label": "List of sources to include",
                             "type": "list",
                             "required": true
+                        },
+                        {
+                            "key": "onlyEnabled",
+                            "label": "Only aggregate enabled accounts",
+                            "type": "checkbox"
                         }
                     ]
                 }

@@ -6,4 +6,5 @@ export interface Config {
     spConnectorSpecId: string
     spConnectorSupportsCustomSchemas: boolean
     sources: string[]
+    onlyEnabled: boolean
 }

@@ -48,7 +48,7 @@ export const connector = async () => {
             const sources = await client.listSources()
             const includedSources = sources.filter((x) => config.sources.includes(x.name))
             for (const source of includedSources) {
-                const accounts = await client.listOrphanAccountsBySource(source.id!)
+                const accounts = await client.listOrphanAccountsBySource(source.id!, config.onlyEnabled)
                 for (const acc of accounts) {
                     const account = new OrphanAccount(acc)
                     logger.info({ account })
@@ -102,7 +102,7 @@ export const connector = async () => {
             const sources = await client.listSources()
             const includedSources = sources.filter((x) => config.sources.includes(x.name))
             for (const source of includedSources) {
-                const accounts = await client.listOrphanAccountsBySource(source.id!)
+                const accounts = await client.listOrphanAccountsBySource(source.id!, config.onlyEnabled)
                 for (const acc of accounts) {
                     const entitlement = new Group(acc)
                     logger.info({ entitlement })

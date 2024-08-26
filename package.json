@@ -1,35 +1,35 @@
 {
-	"name": "orphan-accounts",
-	"version": "0.3.2",
-	"main": "dist/index.js",
-	"scripts": {
-		"clean": "shx rm -rf ./dist",
-		"prebuild": "npm run clean",
-		"build": "npx ncc build ./src/index.ts -o ./dist -m -C",
-		"dev": "spcx run dist/index.js",
-		"prettier": "npx prettier --write .",
-		"prepack-zip": "npm ci && npm run build",
-		"pack-zip": "spcx package"
-	},
-	"private": true,
-	"dependencies": {
-		"@sailpoint/connector-sdk": "1.1.11",
-		"axios-retry": "^4.0.0",
-		"form-data": "^4.0.0",
-		"sailpoint-api-client": "1.4.8"
-	},
-	"devDependencies": {
-		"@types/node": "^22.1.0",
-		"@vercel/ncc": "^0.38.1",
-		"prettier": "^3.2.5",
-		"shx": "^0.3.4",
-		"typescript": "^5.3.3"
-	},
-	"prettier": {
-		"printWidth": 120,
-		"trailingComma": "es5",
-		"tabWidth": 4,
-		"semi": false,
-		"singleQuote": true
-	}
+    "name": "orphan-accounts",
+    "version": "0.3.3",
+    "main": "dist/index.js",
+    "scripts": {
+        "clean": "shx rm -rf ./dist",
+        "prebuild": "npm run clean",
+        "build": "npx ncc build ./src/index.ts -o ./dist -m -C",
+        "dev": "spcx run dist/index.js",
+        "prettier": "npx prettier --write .",
+        "prepack-zip": "npm ci && npm run build",
+        "pack-zip": "spcx package"
+    },
+    "private": true,
+    "dependencies": {
+        "@sailpoint/connector-sdk": "1.1.11",
+        "axios-retry": "^4.0.0",
+        "form-data": "^4.0.0",
+        "sailpoint-api-client": "1.4.8"
+    },
+    "devDependencies": {
+        "@types/node": "^22.1.0",
+        "@vercel/ncc": "^0.38.1",
+        "prettier": "^3.2.5",
+        "shx": "^0.3.4",
+        "typescript": "^5.3.3"
+    },
+    "prettier": {
+        "printWidth": 120,
+        "trailingComma": "es5",
+        "tabWidth": 4,
+        "semi": false,
+        "singleQuote": true
+    }
 }

@@ -86,7 +86,7 @@ export class SDKClient {
         return response.data as IdentityDocument[]
     }
 
-    async listOrphanAccountsBySource(id: string): Promise<Account[]> {
+    async listOrphanAccountsBySource(id: string, onlyEnabled: boolean): Promise<Account[]> {
         const api = new AccountsApi(this.config)
         const filters = `sourceId eq "${id}" and uncorrelated eq true`
         const search = async (requestParameters?: AccountsApiListAccountsRequest | undefined) => {
@@ -95,7 +95,7 @@ export class SDKClient {
 
         const response = await Paginator.paginate(api, search)
 
-        return response.data
+        return onlyEnabled ? response.data.filter((x) => !x.disabled) : response.data
     }
 
     async listAccounts(sourceIds?: string[]): Promise<Account[]> {
