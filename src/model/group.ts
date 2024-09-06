@@ -1,15 +1,15 @@
-import { Attributes, StdEntitlementReadOutput } from '@sailpoint/connector-sdk'
+import { Attributes, StdEntitlementListOutput, StdEntitlementReadOutput } from '@sailpoint/connector-sdk'
 import { Account } from 'sailpoint-api-client'
 
 const TAG = 'Orphan account'
 
-export class Group {
+export class Group implements StdEntitlementListOutput {
     identity: string
     uuid: string
     type: string = 'group'
     attributes: Attributes
 
-    constructor(account:Account) {
+    constructor(account: Account) {
         this.attributes = {
             tag: TAG,
             name: account.name === null ? '-' : account.name,
