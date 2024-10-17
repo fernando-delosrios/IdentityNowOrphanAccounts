@@ -123,6 +123,7 @@ export class SDKClient {
                 forceProvisioning: true,
             },
         }
+        await api.enableAccount(requestParameters)
     }
 
     async disableAccount(id: string) {
@@ -134,6 +135,7 @@ export class SDKClient {
                 forceProvisioning: true,
             },
         }
+        await api.disableAccount(requestParameters)
     }
 
     async getAccount(id: string): Promise<Account | undefined> {
