@@ -7,7 +7,6 @@ import {
     AccountsApiGetAccountRequest,
     AccountsApiListAccountsRequest,
     IdentityDocument,
-    JsonPatchOperation,
     PublicIdentitiesApi,
 } from 'sailpoint-api-client/dist/v3'
 import { URL } from 'url'
