@@ -24,12 +24,11 @@ export class SDKClient {
         this.config.retriesConfig = {
             retries: 5,
             // retryDelay: (retryCount) => { return retryCount * 2000; },
-            retryDelay: (retryCount, error) =>
-                axiosRetry.exponentialDelay(retryCount, error as AxiosError<unknown, any>, 2000),
+            retryDelay: (retryCount, error) => axiosRetry.exponentialDelay(retryCount, error, 2000),
             retryCondition: (error) => {
                 return (
-                    axiosRetry.isNetworkError(error as AxiosError<unknown, any>) ||
-                    axiosRetry.isRetryableError(error as AxiosError<unknown, any>) ||
+                    axiosRetry.isNetworkError(error) ||
+                    axiosRetry.isRetryableError(error) ||
                     error.response?.status === 429
                 )
             },
