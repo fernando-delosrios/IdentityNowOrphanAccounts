@@ -1,13 +1,9 @@
 import {
-    Context,
     ConnectorError,
     createConnector,
     readConfig,
     logger,
-    Response,
-    StdTestConnectionOutput,
     AttributeChangeOp,
-    StdTestConnectionInput,
     StdTestConnectionHandler,
     StdAccountListHandler,
     StdAccountCreateHandler,
@@ -32,13 +28,11 @@ export const connector = async () => {
     const client = new SDKClient(config)
 
     const stdTestConnection: StdTestConnectionHandler = async (context, input, res) => {
-        ;async (context: Context, input: StdTestConnectionInput, res: Response<StdTestConnectionOutput>) => {
-            try {
-                const response = await client.publicIdentities()
-                res.send({})
-            } catch (e) {
-                throw new ConnectorError('Unable to connect to Identity Security Cloud')
-            }
+        try {
+            const response = await client.publicIdentities()
+            res.send({})
+        } catch (e) {
+            throw new ConnectorError('Unable to connect to Identity Security Cloud')
         }
     }
 
